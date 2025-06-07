@@ -1,15 +1,8 @@
-# README.md
-
 # fz-rental
 
-## Overview
-fz-rental is a FiveM resource that allows players to rent vehicles in a smooth and sleek way.
+![Static Badge](https://img.shields.io/badge/FzStudio-Discord?logo=discord&logoColor=%23FFFFFF&labelColor=%235865F2&color=%23333333&link=https%3A%2F%2Fdiscord.gg%2Fyk5ean6rte)
 
-## Dependencies
-- qbx_core
-- qbx_vehiclekeys
-- ox_inventory
-- ox_lib
+fz-rental is a FiveM resource that allows players to rent vehicles in a smooth and sleek way.
 
 ## Features
 - Easy installation.
@@ -22,17 +15,26 @@ fz-rental is a FiveM resource that allows players to rent vehicles in a smooth a
 - Supports ox_target and TextUI for interaction.
 - Server sided validation for security.
 
+## Dependencies
+- qbx_core
+- qbx_vehiclekeys
+- ox_inventory
+- ox_lib
+
 ## Installation
 1. Download the resource and place it in your `resources` directory.
 2. Add `ensure fz-rental` to your `server.cfg` file.
 3. Add the item into ox_inventory/data/items.lua
+
+```lua
     ['rental_papers'] = {
         label = 'Rental Papers',
         weight = 50,
     },
+```
+
 4. Drag or copy the image in fz-rental/images/rental_papers.png to ox_inventory/web/images/
 5. Done!
 
 ## Support
-For issues, please open a support ticket in https://discord.gg/yk5ean6rte.
-If you have any ideas on improvements feel free to make a suggestion in https://discord.gg/yk5ean6rte.
+For any issues or suggestions join: [Discord](#fz-rental)
