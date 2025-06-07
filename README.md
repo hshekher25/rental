@@ -1,19 +1,16 @@
 # fz-rental
 
-![Static Badge](https://img.shields.io/badge/FzStudio-Discord?logo=discord&logoColor=%23FFFFFF&labelColor=%235865F2&color=%23333333&link=https%3A%2F%2Fdiscord.gg%2Fyk5ean6rte)
+![](https://img.shields.io/badge/FzStudio-Discord?logo=discord&logoColor=%23FFFFFF&labelColor=%235865F2&color=%23333333&link=https%3A%2F%2Fdiscord.gg%2Fyk5ean6rte)
 
 fz-rental is a FiveM resource that allows players to rent vehicles in a smooth and sleek way.
 
 ## Features
 - Easy installation.
-- Easily add or remove vehicles to rent.
+- Easily add or remove available vehicles to rent.
 - Changeble prices, names and descriptions of each vehicle.
-- Rental Papers item with metadata(name, plate, renter).
-- Blips support for rental locations.
+- Rental papers item with metadata (name, plate, renter).
 - Supports bank and cash payments.
-- Setup multiple rental locations.
 - Supports ox_target and TextUI for interaction.
-- Server sided validation for security.
 
 ## Dependencies
 - qbx_core
