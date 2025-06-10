@@ -4,28 +4,28 @@ local spawnedPeds = {}
 local spawnedBlips = {}
 
 exports.ox_inventory:displayMetadata({
-    name = 'Vehicle',
-    plate = 'Plate',
-    owner = 'Renter'
+    name = locale('item_metadata.vehicle_name'),
+    plate = locale('item_metadata.plate_number'),
+    owner = locale('item_metadata.owner')
 })
 
 local function registerRentalMenu()
     lib.registerContext({
         id = 'rentalmenu',
-        title = 'Rental Service',
+        title = locale('rental_menu.title'),
         options = {
           {
-            title = 'Vehicles for Rent',
-            description = 'Browse available vehicles for rent',
+            title = locale('rental_menu.subtitle_vehicles_for_rent'),
+            description = locale('rental_menu.description_vehicles_for_rent'),
             menu = 'rentalvehicles',
             arrow = true,
             icon = 'car'
           },
           {
-            title = 'Information',
-            description = 'Hover over to view',
+            title = locale('rental_menu.subtitle_information'),
+            description = locale('rental_menu.description_information'),
             metadata = {
-                {label = 'Information', value = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas cursus sem in massa hendrerit gravida. Aliquam feugiat, lorem id imperdiet. '},
+                {label = locale('rental_menu.information_label'), value = locale('rental_menu.information')},
             },
             icon = 'book'
           },
@@ -38,7 +38,7 @@ local function registerVehicleMenu()
     for _, vehicle in ipairs(config.vehicles) do
         table.insert(vehicleOptions, {
             title = vehicle.name,
-            description = vehicle.description .. ' ($' .. vehicle.price .. ')',
+            description = vehicle.description .. locale('currency.symbol') .. vehicle.price,
             icon = vehicle.icon,
             onSelect = function()
                 TriggerServerEvent('fz-rental:rentVehicle', vehicle.name, vehicle.model, vehicle.price)
@@ -48,7 +48,7 @@ local function registerVehicleMenu()
 
     lib.registerContext({
         id = 'rentalvehicles',
-        title = 'Available Vehicles',
+        title = locale('vehicle_menu.title'),
         options = vehicleOptions,
     })
 end
@@ -100,7 +100,7 @@ local function spawnPeds()
             exports.ox_target:addLocalEntity(ped, {{
                 name = 'open_rental' .. i,
                 icon = 'fa-solid fa-car',
-                label = 'Open Rental Service',
+                label = locale('info.open_rental_target'),
                 distance = 1.5,
                 debug = false,
                 onSelect = function()
@@ -117,7 +117,7 @@ local function spawnPeds()
                     rotation = current.coords.w,
                     debug = options.debugPoly,
                     onEnter = function()
-                        lib.showTextUI('Press E to open Rental Service')
+                        lib.showTextUI(locale('info.open_rental_textui'))
                     end,
                     onExit = function()
                         lib.hideTextUI()

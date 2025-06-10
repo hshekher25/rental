@@ -3,7 +3,9 @@ game 'gta5'
 
 author 'Fuzion'
 description 'A rental system for FiveM'
-version '1.0.0'
+version 'v1.0.0'
+
+ox_lib 'locale'
 
 shared_scripts {
     '@ox_lib/init.lua',
@@ -12,11 +14,15 @@ shared_scripts {
 }
 
 client_scripts {
-    'client/client.lua'
+    'client/main.lua'
 }
 
 server_scripts {
-    'server/server.lua'
+    'server/main.lua'
+}
+
+files {
+    'locales/*.json',
 }
 
 lua54 'yes'
