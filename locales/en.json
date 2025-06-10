@@ -1,0 +1,35 @@
+{
+    "currency": {
+        "symbol": " $ "
+    },
+    "error": {
+        "not_enough_cash": "You do not have enough cash to rent this vehicle.",
+        "not_enough_money": "You do not have enough money in your bank to rent this vehicle.",
+        "not_enough_inventory_space": "You do not have enough space in your inventory for the rental papers."
+    },
+    "success": {
+        "item_recieved": "You have received your rental papers."
+    },
+    "info": {
+        "remove_money": "Vehicle Rental: ",
+        "open_rental_target": "Open Rental Service",
+        "open_rental_textui": "Press [E] to open Rental Service"
+    },
+    "rental_menu": {
+        "title": "Rental Service",
+        "subtitle_vehicles_for_rent": "Vehicles for Rent",
+        "description_vehicles_for_rent": "Browse available vehicles for rent",
+        "subtitle_information": "Information",
+        "description_information": "Hover over to view",
+        "information_label": "Information",
+        "information": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas cursus sem in massa hendrerit gravida. Aliquam feugiat, lorem id imperdiet."
+    },
+    "vehicle_menu": {
+        "title": "Available Vehicles"
+    },
+    "item_metadata": {
+        "vehicle_name": "Vehicle Name",
+        "plate_number": "Plate",
+        "owner": "Renter"
+    }
+}

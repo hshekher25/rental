@@ -9,20 +9,20 @@ RegisterNetEvent('fz-rental:giveRentalPapers', function(name, model, plate)
             plate = plate,
             owner = player.PlayerData.charinfo.firstname .. ' ' .. player.PlayerData.charinfo.lastname
         })
-        TriggerClientEvent('fz-rental:notify', source, 'You have received rental papers for the ' .. name .. '.', 'success')
+        TriggerClientEvent('fz-rental:notify', source, locale('success.item_recieved'), 'success')
     else
-        TriggerClientEvent('fz-rental:notify', source, 'You do not have enough space in your inventory for the rental papers.', 'error')
+        TriggerClientEvent('fz-rental:notify', source, locale('error.not_enough_inventory_space'), 'error')
     end
 end)
 
 RegisterNetEvent('fz-rental:rentVehicle', function(name, model, price)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
-    if not player.Functions.RemoveMoney(config.moneytype, price, 'Vehicle Rental: ' .. name) then
+    if not player.Functions.RemoveMoney(config.moneytype, price, locale('info.remove_money') .. name) then
         if config.moneytype == 'cash' then
-            TriggerClientEvent('fz-rental:notify', source, 'You do not have enough cash to rent this vehicle.', 'error')
+            TriggerClientEvent('fz-rental:notify', source, locale('error.not_enough_cash'), 'error')
         else
-            TriggerClientEvent('fz-rental:notify', source, 'You do not have enough money in your bank to rent this vehicle.', 'error')
+            TriggerClientEvent('fz-rental:notify', source, locale('error.not_enough_money'), 'error')
         end
         return
     end
