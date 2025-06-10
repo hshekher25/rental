@@ -30,8 +30,7 @@ RegisterNetEvent('fz-rental:rentVehicle', function(name, model, price)
 end)
 
 RegisterNetEvent('fz-rental:giveKeys', function(netId)
-    local player = exports.qbx_core:GetPlayer(source)
-    if not player then return end
+    local source = source
     local vehicle = NetworkGetEntityFromNetworkId(netId)
     if DoesEntityExist(vehicle) then
         exports.qbx_vehiclekeys:GiveKeys(source, vehicle)
