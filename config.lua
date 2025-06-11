@@ -1,5 +1,6 @@
 Config = {}
 Config.useTarget = true -- Use ox_target for interaction.
+Config.keybind = 38 -- Control index for the TextUI. Default is 'E' (38) Change locals file for UI text. https://docs.fivem.net/docs/game-references/controls/#controls
 Config.useBlips = true -- Show blips on the map.
 
 Config.moneytype = 'bank' -- Type of money used for transactions. Options: 'cash' or 'bank'.
