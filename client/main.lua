@@ -6,7 +6,8 @@ local spawnedBlips = {}
 exports.ox_inventory:displayMetadata({
     name = locale('item_metadata.vehicle_name'),
     plate = locale('item_metadata.plate_number'),
-    owner = locale('item_metadata.owner')
+    owner = locale('item_metadata.owner'),
+    expires = locale('item_metadata.expires')
 })
 
 local function registerRentalMenu()
@@ -38,10 +39,21 @@ local function registerVehicleMenu()
     for _, vehicle in ipairs(config.vehicles) do
         table.insert(vehicleOptions, {
             title = vehicle.name,
-            description = vehicle.description .. locale('currency.symbol') .. vehicle.price,
+            description = vehicle.description .. locale('currency.symbol') .. vehicle.price .. locale('vehicle_menu.per_hour'),
             icon = vehicle.icon,
             onSelect = function()
-                TriggerServerEvent('fz-rental:rentVehicle', vehicle.name, vehicle.model, vehicle.price)
+                local input = lib.inputDialog(locale('rental_time_menu.title'), {
+                    {
+                        type = 'slider',
+                        label = locale('rental_time_menu.label'),
+                        default = 1,
+                        min = config.minRentTime,
+                        max = config.maxRentTime,
+                    }
+                })
+                if not input then return end
+                local rentalDuration = tonumber(input[1])
+                TriggerServerEvent('fz-rental:rentVehicle', vehicle.name, vehicle.model, vehicle.price, rentalDuration)
             end,
         })
     end
@@ -61,7 +73,7 @@ RegisterNetEvent('fz-rental:notify', function(message, type)
     })
 end)
 
-RegisterNetEvent('fz-rental:spawnVehicle', function(name, model)
+RegisterNetEvent('fz-rental:spawnVehicle', function(name, model, rentalduration)
     local playerPed = PlayerPedId()
     local coords = config.peds[1].spawncoords
     local modelHash = GetHashKey(model)
@@ -83,7 +95,7 @@ RegisterNetEvent('fz-rental:spawnVehicle', function(name, model)
         Wait(50)
     end
     TriggerServerEvent('fz-rental:giveKeys', netId)
-    TriggerServerEvent('fz-rental:giveRentalPapers', name, model, plate)
+    TriggerServerEvent('fz-rental:giveRentalPapers', name, model, plate, rentalduration)
 end)
 
 local function spawnPeds()
@@ -184,10 +196,12 @@ end)
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
     deleteBlips()
     deletePeds()
+    lib.closeInputDialog()
 end)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     deletePeds()
     deleteBlips()
+    lib.closeInputDialog()
 end)
