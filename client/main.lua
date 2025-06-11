@@ -123,7 +123,7 @@ local function spawnPeds()
                         lib.hideTextUI()
                     end,
                     inside = function()
-                        if IsControlJustPressed(0, 38) then
+                        if IsControlJustPressed(0, config.keybind) then
                             lib.showContext('rentalmenu')
                             lib.hideTextUI()
                         end
