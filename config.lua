@@ -1,7 +1,10 @@
 Config = {}
+Config.useBlips = true -- Show blips on the map.
 Config.useTarget = true -- Use ox_target for interaction.
 Config.keybind = 38 -- Control index for the TextUI. Default is 'E' (38) Change locals file for UI text. https://docs.fivem.net/docs/game-references/controls/#controls
-Config.useBlips = true -- Show blips on the map.
+
+Config.minRentTime = 1 -- Minimum rental time in hours.
+Config.maxRentTime = 24 -- Maximum rental time in hours.
 
 Config.moneytype = 'bank' -- Type of money used for transactions. Options: 'cash' or 'bank'.
 
@@ -30,21 +33,21 @@ Config.vehicles = {
         name = 'Adder',
         description = 'A fast sports car.',
         model = 'adder',
-        price = 500,
+        price = 150,
         icon = 'car',
     },
     {
         name = 'Obey Tailgater',
         description = 'A 4-door sedan.',
         model = 'tailgater',
-        price = 300,
+        price = 100,
         icon = 'car',
     },
     {
         name = 'Brawler',
         description = 'A off-road vehicle.',
         model = 'brawler',
-        price = 400,
+        price = 125,
         icon = 'car',
     },
     -- {
