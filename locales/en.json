@@ -5,10 +5,13 @@
     "error": {
         "not_enough_cash": "You do not have enough cash to rent this vehicle.",
         "not_enough_money": "You do not have enough money in your bank to rent this vehicle.",
-        "not_enough_inventory_space": "You do not have enough space in your inventory for the rental papers."
+        "not_enough_inventory_space": "You do not have enough space in your inventory for the rental papers.",
+        "rental_expired": "Your rental has expired.",
+        "vehicle_already_spawned": "You already have a vehicle spawned."
     },
     "success": {
-        "item_recieved": "You have received your rental papers."
+        "item_recieved": "You have received your rental papers.",
+        "vehicle_recovered": "You have recovered your vehicle."
     },
     "info": {
         "remove_money": "Vehicle Rental: ",
@@ -21,6 +24,8 @@
         "description_vehicles_for_rent": "Browse available vehicles for rent",
         "subtitle_information": "Information",
         "description_information": "Hover over to view",
+        "subtitle_recover_vehicle": "Recover Vehicle",
+        "description_recover_vehicle": "Recover your rented vehicle",
         "information_label": "Information",
         "information": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas cursus sem in massa hendrerit gravida. Aliquam feugiat, lorem id imperdiet."
     },

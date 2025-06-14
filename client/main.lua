@@ -22,6 +22,14 @@ local function registerRentalMenu()
             arrow = true,
             icon = 'car'
           },
+         {
+            title = locale('rental_menu.subtitle_recover_vehicle'),
+            description = locale('rental_menu.description_recover_vehicle'),
+            icon = 'car',
+            onSelect = function()
+                TriggerServerEvent('fz-rental:recoverVehicle')
+            end,
+          },
           {
             title = locale('rental_menu.subtitle_information'),
             description = locale('rental_menu.description_information'),
@@ -81,7 +89,7 @@ RegisterNetEvent('fz-rental:spawnVehicle', function(name, model, rentalduration)
         lib.print.error('Invalid vehicle model: ' .. model)
         return
     end
-    lib.RequestModel(modelHash)
+    RequestModel(modelHash)
     local vehicle = CreateVehicle(modelHash, coords.x, coords.y, coords.z, coords.w, true, false)
     SetPedIntoVehicle(playerPed, vehicle, -1)
     local plate = GetVehicleNumberPlateText(vehicle)
@@ -95,12 +103,37 @@ RegisterNetEvent('fz-rental:spawnVehicle', function(name, model, rentalduration)
         Wait(50)
     end
     TriggerServerEvent('fz-rental:giveKeys', netId)
-    TriggerServerEvent('fz-rental:giveRentalPapers', name, model, plate, rentalduration)
+    TriggerServerEvent('fz-rental:giveRentalPapers', netId, name, model, plate, rentalduration)
+end)
+
+RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(name, model, plate, rentalduration)
+    local playerPed = PlayerPedId()
+    local coords = config.peds[1].spawncoords
+    local modelHash = GetHashKey(model)
+    if not IsModelValid(modelHash) then
+        lib.print.error('Invalid vehicle model: ' .. model)
+        return
+    end
+    RequestModel(modelHash)
+    local vehicle = CreateVehicle(modelHash, coords.x, coords.y, coords.z, coords.w, true, false)
+    SetPedIntoVehicle(playerPed, vehicle, -1)
+    SetVehicleNumberPlateText(vehicle, plate)
+    local netId = NetworkGetNetworkIdFromEntity(vehicle)
+    local timeout = GetGameTimer() + 5000
+    while not NetworkDoesEntityExistWithNetworkId(netId) do
+        if GetGameTimer() > timeout then
+            lib.print.error('Vehicle failed to register with server')
+            return
+        end
+        Wait(50)
+    end
+    TriggerServerEvent('fz-rental:giveKeys', netId)
+    TriggerEvent('fz-rental:notify', locale('success.vehicle_recovered'), 'success')
 end)
 
 local function spawnPeds()
     for i, current in ipairs(config.peds) do
-        lib.RequestModel(current.model)
+        RequestModel(current.model)
         local ped = CreatePed(0, current.model, current.coords.x, current.coords.y, current.coords.z, current.coords.w, false, false)
         SetModelAsNoLongerNeeded(current.model)
         FreezeEntityPosition(ped, true)
