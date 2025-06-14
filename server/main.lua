@@ -31,7 +31,7 @@ RegisterNetEvent('fz-rental:giveRentalPapers', function(netid, name, model, plat
 end)
 
 
-RegisterNetEvent('fz-rental:rentVehicle', function(name, model, price, rentalduration)
+RegisterNetEvent('fz-rental:rentVehicle', function(id, name, model, price, rentalduration)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
     local total_price = price * rentalduration
@@ -43,7 +43,7 @@ RegisterNetEvent('fz-rental:rentVehicle', function(name, model, price, rentaldur
         end
         return
     end
-    TriggerClientEvent('fz-rental:spawnVehicle', source, name, model, rentalduration)
+    TriggerClientEvent('fz-rental:spawnVehicle', source, id, name, model, rentalduration)
 end)
 
 RegisterNetEvent('fz-rental:giveKeys', function(netId)
@@ -54,7 +54,7 @@ RegisterNetEvent('fz-rental:giveKeys', function(netId)
     end
 end)
 
-RegisterNetEvent('fz-rental:recoverVehicle', function()
+RegisterNetEvent('fz-rental:recoverVehicle', function(id)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
     local cid = player.PlayerData.citizenid
@@ -64,7 +64,7 @@ RegisterNetEvent('fz-rental:recoverVehicle', function()
             local currentTime = os.time()
             if currentTime < vehiclelist[cid].expires then
                 local vehicle = vehiclelist[cid]
-                TriggerClientEvent('fz-rental:spawnRecoveredVehicle', source, vehicle.name, vehicle.model, vehicle.plate, vehicle.duration)
+                TriggerClientEvent('fz-rental:spawnRecoveredVehicle', source, id, vehicle.name, vehicle.model, vehicle.plate, vehicle.duration)
             else
                 vehiclelist[cid] = nil
                 TriggerClientEvent('fz-rental:notify', source, locale('error.rental_expired'), 'error')

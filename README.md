@@ -10,6 +10,7 @@ fz-rental is a FiveM resource that allows players to rent vehicles in a smooth a
 - Secure server sided events.
 - Supports ox_target and TextUI for interaction.
 - Easily add or remove available vehicles to rent.
+- Supports multiple locations.
 - Rental paper item with metadata (name, plate, renter and expiration date).
 - Changeble prices, names and descriptions of each vehicle.
 - Supports bank and cash payments.
