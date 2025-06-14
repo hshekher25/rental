@@ -10,24 +10,24 @@ exports.ox_inventory:displayMetadata({
     expires = locale('item_metadata.expires')
 })
 
-local function registerRentalMenu()
+local function registerRentalMenu(id)
     lib.registerContext({
-        id = 'rentalmenu',
+        id = 'rentalmenu' .. id,
         title = locale('rental_menu.title'),
         options = {
           {
             title = locale('rental_menu.subtitle_vehicles_for_rent'),
             description = locale('rental_menu.description_vehicles_for_rent'),
-            menu = 'rentalvehicles',
+            menu = 'rentalvehicles' .. id,
             arrow = true,
             icon = 'car'
           },
-         {
+          {
             title = locale('rental_menu.subtitle_recover_vehicle'),
             description = locale('rental_menu.description_recover_vehicle'),
             icon = 'car',
             onSelect = function()
-                TriggerServerEvent('fz-rental:recoverVehicle')
+                TriggerServerEvent('fz-rental:recoverVehicle', id)
             end,
           },
           {
@@ -42,9 +42,10 @@ local function registerRentalMenu()
     })
 end
 
-local function registerVehicleMenu()
+local function registerVehicleMenu(id)
     local vehicleOptions = {}
-    for _, vehicle in ipairs(config.vehicles) do
+    local vehicles = config.vehicles[id] or {}
+    for _, vehicle in ipairs(vehicles) do
         table.insert(vehicleOptions, {
             title = vehicle.name,
             description = vehicle.description .. locale('currency.symbol') .. vehicle.price .. locale('vehicle_menu.per_hour'),
@@ -61,13 +62,13 @@ local function registerVehicleMenu()
                 })
                 if not input then return end
                 local rentalDuration = tonumber(input[1])
-                TriggerServerEvent('fz-rental:rentVehicle', vehicle.name, vehicle.model, vehicle.price, rentalDuration)
+                TriggerServerEvent('fz-rental:rentVehicle', id, vehicle.name, vehicle.model, vehicle.price, rentalDuration)
             end,
         })
     end
 
     lib.registerContext({
-        id = 'rentalvehicles',
+        id = 'rentalvehicles' .. id,
         title = locale('vehicle_menu.title'),
         options = vehicleOptions,
     })
@@ -81,9 +82,10 @@ RegisterNetEvent('fz-rental:notify', function(message, type)
     })
 end)
 
-RegisterNetEvent('fz-rental:spawnVehicle', function(name, model, rentalduration)
+RegisterNetEvent('fz-rental:spawnVehicle', function(id, name, model, rentalduration)
+    local pedId = config.peds[id]
     local playerPed = PlayerPedId()
-    local coords = config.peds[1].spawncoords
+    local coords = pedId.spawncoords
     local modelHash = GetHashKey(model)
     if not IsModelValid(modelHash) then
         lib.print.error('Invalid vehicle model: ' .. model)
@@ -106,9 +108,10 @@ RegisterNetEvent('fz-rental:spawnVehicle', function(name, model, rentalduration)
     TriggerServerEvent('fz-rental:giveRentalPapers', netId, name, model, plate, rentalduration)
 end)
 
-RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(name, model, plate, rentalduration)
+RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(id, name, model, plate, rentalduration)
+    local pedId = config.peds[id]
     local playerPed = PlayerPedId()
-    local coords = config.peds[1].spawncoords
+    local coords = pedId.spawncoords
     local modelHash = GetHashKey(model)
     if not IsModelValid(modelHash) then
         lib.print.error('Invalid vehicle model: ' .. model)
@@ -132,7 +135,7 @@ RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(name, model, plate,
 end)
 
 local function spawnPeds()
-    for i, current in ipairs(config.peds) do
+    for id, current in pairs(config.peds) do
         RequestModel(current.model)
         local ped = CreatePed(0, current.model, current.coords.x, current.coords.y, current.coords.z, current.coords.w, false, false)
         SetModelAsNoLongerNeeded(current.model)
@@ -143,20 +146,20 @@ local function spawnPeds()
         table.insert(spawnedPeds, ped)
         if config.useTarget then
             exports.ox_target:addLocalEntity(ped, {{
-                name = 'open_rental' .. i,
+                name = 'open_rental' .. id,
                 icon = 'fa-solid fa-car',
                 label = locale('info.open_rental_target'),
                 distance = 1.5,
                 debug = false,
                 onSelect = function()
-                    lib.showContext('rentalmenu')
+                    lib.showContext('rentalmenu' .. id)
                 end
             }})
         else
             local options = current.zoneOptions
             if options then
                 lib.zones.box({
-                    name = 'rental_zone_' .. i,
+                    name = 'rental_zone_' .. id,
                     coords = current.coords.xyz,
                     size = vec3(2, 2, 3),
                     rotation = current.coords.w,
@@ -169,7 +172,7 @@ local function spawnPeds()
                     end,
                     inside = function()
                         if IsControlJustPressed(0, config.keybind) then
-                            lib.showContext('rentalmenu')
+                            lib.showContext('rentalmenu' .. id)
                             lib.hideTextUI()
                         end
                     end,
@@ -189,7 +192,7 @@ end
 
 local function spawnBlips()
     if config.useBlips then
-        for _, pedData in ipairs(config.peds) do
+        for _, pedData in pairs(config.peds) do
             local blip = AddBlipForCoord(pedData.coords.x, pedData.coords.y, pedData.coords.z)
             SetBlipSprite(blip, pedData.blip and pedData.blip.sprite or 1)
             SetBlipDisplay(blip, pedData.blip and pedData.blip.display or 4)
@@ -214,16 +217,20 @@ end
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     spawnPeds()
     spawnBlips()
-    registerRentalMenu()
-    registerVehicleMenu()
+    for id, _ in pairs(config.peds) do
+        registerRentalMenu(id)
+        registerVehicleMenu(id)
+    end
 end)
 
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     spawnPeds()
     spawnBlips()
-    registerRentalMenu()
-    registerVehicleMenu()
+    for id, _ in pairs(config.peds) do
+        registerRentalMenu(id)
+        registerVehicleMenu(id)
+    end
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
