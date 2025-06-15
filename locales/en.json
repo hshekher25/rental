@@ -27,7 +27,7 @@
         "subtitle_recover_vehicle": "Recover Vehicle",
         "description_recover_vehicle": "Recover your rented vehicle",
         "information_label": "Information",
-        "information": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas cursus sem in massa hendrerit gravida. Aliquam feugiat, lorem id imperdiet."
+        "information": "Looking to rent a vehicle? Open the Vehicles for Rent menu, pick your ride, and it’ll be delivered with rental papers and a set duration. Lost it? Click on Recover Vehicle and it will be delivered back to you."
     },
     "vehicle_menu": {
         "title": "Available Vehicles",

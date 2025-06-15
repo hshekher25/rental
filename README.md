@@ -1,6 +1,7 @@
 # fz-rental
 
 ![](https://img.shields.io/badge/FzStudio-Discord?logo=discord&logoColor=%23FFFFFF&labelColor=%235865F2&color=%23333333&link=https%3A%2F%2Fdiscord.gg%2Fyk5ean6rte)
+![](https://img.shields.io/badge/FzStudio-youtube?logo=youtube&logoColor=%23FFFFFF&labelColor=%23FF0000&color=grey&link=https%3A%2F%2Fwww.youtube.com%2Fchannel%2FUCRvcGXhc7HCiz7_6VJGjgkA)
 
 fz-rental is a FiveM resource that allows players to rent vehicles in a smooth and sleek way.
 
