@@ -5,9 +5,12 @@
     "error": {
         "not_enough_cash": "You do not have enough cash to rent this vehicle.",
         "not_enough_money": "You do not have enough money in your bank to rent this vehicle.",
+        "invalid_money_type": "Invalid money type. Please use 'cash' or 'bank'.",
         "not_enough_inventory_space": "You do not have enough space in your inventory for the rental papers.",
         "rental_expired": "Your rental has expired.",
-        "vehicle_already_spawned": "You already have a vehicle spawned."
+        "vehicle_already_spawned": "You already have a vehicle spawned.",
+        "vehicle_not_found": "You have no vehicle to recover.",
+        "vehicle_already_rented": "You have already rented a vehicle."
     },
     "success": {
         "item_recieved": "You have received your rental papers.",

@@ -34,30 +34,45 @@ end)
 RegisterNetEvent('fz-rental:rentVehicle', function(id, name, model, price, rentalduration)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
+    local cid = player.PlayerData.citizenid
+    local currentTime = os.time()
+    if vehiclelist[cid] then
+        if currentTime < vehiclelist[cid].expires then
+            TriggerClientEvent('fz-rental:notify', source, locale('error.vehicle_already_rented'), 'error')
+            return
+        else
+            vehiclelist[cid] = nil
+        end
+    end
+    local balance = player.Functions.GetMoney(config.moneytype)
     local total_price = price * rentalduration
-    if not player.Functions.RemoveMoney(config.moneytype, total_price, locale('info.remove_money') .. name) then
+    if balance < total_price then
         if config.moneytype == 'cash' then
             TriggerClientEvent('fz-rental:notify', source, locale('error.not_enough_cash'), 'error')
-        else
+        elseif config.moneytype == 'bank' then
             TriggerClientEvent('fz-rental:notify', source, locale('error.not_enough_money'), 'error')
+        else
+            TriggerClientEvent('fz-rental:notify', source, locale('error.invalid_money_type'), 'error')
         end
         return
     end
+    player.Functions.RemoveMoney(config.moneytype, total_price, locale('info.remove_money') .. name)
     TriggerClientEvent('fz-rental:spawnVehicle', source, id, name, model, rentalduration)
 end)
 
-RegisterNetEvent('fz-rental:giveKeys', function(netId)
+RegisterNetEvent('fz-rental:giveKeys', function(plate)
     local source = source
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
-    if DoesEntityExist(vehicle) then
-        exports.qbx_vehiclekeys:GiveKeys(source, vehicle)
-    end
+    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
 end)
 
 RegisterNetEvent('fz-rental:recoverVehicle', function(id)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
     local cid = player.PlayerData.citizenid
+    if not vehiclelist[cid] then
+        TriggerClientEvent('fz-rental:notify', source, locale('error.vehicle_not_found'), 'error')
+        return
+    end
     local vehicleEntity = NetworkGetEntityFromNetworkId(vehiclelist[cid].netid)
     if not DoesEntityExist(vehicleEntity) then
         if vehiclelist[cid] then
