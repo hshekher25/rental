@@ -1,6 +1,7 @@
 Config = {}
 Config.useBlips = true -- Show blips on the map.
 Config.useTarget = true -- Use ox_target for interaction.
+Config.fuelSystem = 'ox_fuel' -- Fuel system to use. Options: 'ox_fuel' or 'LegacyFuel' make sure to start the resource before this one.
 Config.keybind = 38 -- Control index for the TextUI. Default is 'E' (38) Change locals file for UI text. https://docs.fivem.net/docs/game-references/controls/#controls
 
 Config.minRentTime = 1 -- Minimum rental time in hours.

@@ -10,39 +10,7 @@ exports.ox_inventory:displayMetadata({
     expires = locale('item_metadata.expires')
 })
 
-local function registerRentalMenu(id)
-    lib.registerContext({
-        id = 'rentalmenu' .. id,
-        title = locale('rental_menu.title'),
-        options = {
-          {
-            title = locale('rental_menu.subtitle_vehicles_for_rent'),
-            description = locale('rental_menu.description_vehicles_for_rent'),
-            menu = 'rentalvehicles' .. id,
-            arrow = true,
-            icon = 'car'
-          },
-          {
-            title = locale('rental_menu.subtitle_recover_vehicle'),
-            description = locale('rental_menu.description_recover_vehicle'),
-            icon = 'car',
-            onSelect = function()
-                TriggerServerEvent('fz-rental:recoverVehicle', id)
-            end,
-          },
-          {
-            title = locale('rental_menu.subtitle_information'),
-            description = locale('rental_menu.description_information'),
-            metadata = {
-                {label = locale('rental_menu.information_label'), value = locale('rental_menu.information')},
-            },
-            icon = 'book'
-          },
-        }
-    })
-end
-
-local function registerVehicleMenu(id)
+local function openVehicleMenu(id)
     local vehicleOptions = {}
     local vehicles = config.vehicles[id] or {}
     for _, vehicle in ipairs(vehicles) do
@@ -72,7 +40,44 @@ local function registerVehicleMenu(id)
         title = locale('vehicle_menu.title'),
         options = vehicleOptions,
     })
+    lib.showContext('rentalvehicles' .. id)
 end
+
+local function openRentalMenu(id)
+    lib.registerContext({
+        id = 'rentalmenu' .. id,
+        title = locale('rental_menu.title'),
+        options = {
+          {
+            title = locale('rental_menu.subtitle_vehicles_for_rent'),
+            description = locale('rental_menu.description_vehicles_for_rent'),
+            arrow = true,
+            icon = 'car',
+            onSelect = function()
+                openVehicleMenu(id)
+            end,
+          },
+          {
+            title = locale('rental_menu.subtitle_recover_vehicle'),
+            description = locale('rental_menu.description_recover_vehicle'),
+            icon = 'car',
+            onSelect = function()
+                TriggerServerEvent('fz-rental:recoverVehicle', id)
+            end,
+          },
+          {
+            title = locale('rental_menu.subtitle_information'),
+            description = locale('rental_menu.description_information'),
+            metadata = {
+                {label = locale('rental_menu.information_label'), value = locale('rental_menu.information')},
+            },
+            icon = 'book'
+          },
+        }
+    })
+    lib.showContext('rentalmenu' .. id)
+end
+
 
 RegisterNetEvent('fz-rental:notify', function(message, type)
     lib.notify({
@@ -81,6 +86,21 @@ RegisterNetEvent('fz-rental:notify', function(message, type)
         duration = 5000
     })
 end)
+
+local function setFuelFull(vehicle)
+    if not DoesEntityExist(vehicle) then
+        lib.print.error('Vehicle does not exist')
+        return
+    end
+    if config.fuelSystem == 'ox_fuel' then
+        Entity(vehicle).state.fuel = 100.0
+    elseif config.fuelSystem == 'LegacyFuel' then
+        exports["LegacyFuel"]:SetFuel(vehicle, 100)
+    else
+        lib.print.error('Invalid fuel system, supports only ox_fuel or LegacyFuel')
+        return
+    end
+end
 
 RegisterNetEvent('fz-rental:spawnVehicle', function(id, name, model, rentalduration)
     local pedId = config.peds[id]
@@ -92,11 +112,19 @@ RegisterNetEvent('fz-rental:spawnVehicle', function(id, name, model, rentaldurat
         return
     end
     RequestModel(modelHash)
+    local timeout = GetGameTimer() + 5000
+    while not HasModelLoaded(modelHash) do
+        if GetGameTimer() > timeout then
+            lib.print.error('Failed to load vehicle model')
+            return
+        end
+        Wait(50)
+    end
     local vehicle = CreateVehicle(modelHash, coords.x, coords.y, coords.z, coords.w, true, false)
+    setFuelFull(vehicle)
     SetPedIntoVehicle(playerPed, vehicle, -1)
     local plate = GetVehicleNumberPlateText(vehicle)
     local netId = NetworkGetNetworkIdFromEntity(vehicle)
-    local timeout = GetGameTimer() + 5000
     while not NetworkDoesEntityExistWithNetworkId(netId) do
         if GetGameTimer() > timeout then
             lib.print.error('Vehicle failed to register with server')
@@ -104,7 +132,7 @@ RegisterNetEvent('fz-rental:spawnVehicle', function(id, name, model, rentaldurat
         end
         Wait(50)
     end
-    TriggerServerEvent('fz-rental:giveKeys', netId)
+    TriggerServerEvent('fz-rental:giveKeys', plate)
     TriggerServerEvent('fz-rental:giveRentalPapers', netId, name, model, plate, rentalduration)
 end)
 
@@ -118,11 +146,18 @@ RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(id, name, model, pl
         return
     end
     RequestModel(modelHash)
+    local timeout = GetGameTimer() + 5000
+    while not HasModelLoaded(modelHash) do
+        if GetGameTimer() > timeout then
+            lib.print.error('Failed to load vehicle model')
+            return
+        end
+        Wait(50)
+    end
     local vehicle = CreateVehicle(modelHash, coords.x, coords.y, coords.z, coords.w, true, false)
     SetPedIntoVehicle(playerPed, vehicle, -1)
     SetVehicleNumberPlateText(vehicle, plate)
     local netId = NetworkGetNetworkIdFromEntity(vehicle)
-    local timeout = GetGameTimer() + 5000
     while not NetworkDoesEntityExistWithNetworkId(netId) do
         if GetGameTimer() > timeout then
             lib.print.error('Vehicle failed to register with server')
@@ -130,13 +165,21 @@ RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(id, name, model, pl
         end
         Wait(50)
     end
-    TriggerServerEvent('fz-rental:giveKeys', netId)
+    TriggerServerEvent('fz-rental:giveKeys', plate)
     TriggerEvent('fz-rental:notify', locale('success.vehicle_recovered'), 'success')
 end)
 
 local function spawnPeds()
     for id, current in pairs(config.peds) do
         RequestModel(current.model)
+        local timeout = GetGameTimer() + 5000
+        while not HasModelLoaded(current.model) do
+            if GetGameTimer() > timeout then
+                lib.print.error('Failed to load ped model')
+                return
+            end
+            Wait(50)
+        end
         local ped = CreatePed(0, current.model, current.coords.x, current.coords.y, current.coords.z, current.coords.w, false, false)
         SetModelAsNoLongerNeeded(current.model)
         FreezeEntityPosition(ped, true)
@@ -152,7 +195,7 @@ local function spawnPeds()
                 distance = 1.5,
                 debug = false,
                 onSelect = function()
-                    lib.showContext('rentalmenu' .. id)
+                    openRentalMenu(id)
                 end
             }})
         else
@@ -172,7 +215,7 @@ local function spawnPeds()
                     end,
                     inside = function()
                         if IsControlJustPressed(0, config.keybind) then
-                            lib.showContext('rentalmenu' .. id)
+                            openRentalMenu(id)
                             lib.hideTextUI()
                         end
                     end,
@@ -217,20 +260,12 @@ end
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     spawnPeds()
     spawnBlips()
-    for id, _ in pairs(config.peds) do
-        registerRentalMenu(id)
-        registerVehicleMenu(id)
-    end
 end)
 
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     spawnPeds()
     spawnBlips()
-    for id, _ in pairs(config.peds) do
-        registerRentalMenu(id)
-        registerVehicleMenu(id)
-    end
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
