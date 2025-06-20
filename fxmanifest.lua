@@ -3,7 +3,7 @@ game 'gta5'
 
 author 'Fuzion'
 description 'A rental system for FiveM'
-version 'v1.0.1'
+version 'v1.0.2'
 
 ox_lib 'locale'
 
