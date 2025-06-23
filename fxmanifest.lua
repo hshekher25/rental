@@ -23,6 +23,10 @@ server_scripts {
 
 files {
     'locales/*.json',
+    'web/images/*.png',
+    'web/index.html',
 }
+
+ui_page 'web/index.html'
 
 lua54 'yes'
