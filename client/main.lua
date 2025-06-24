@@ -18,6 +18,7 @@ local function openVehicleMenu(id)
             title = vehicle.name,
             description = vehicle.description .. locale('currency.symbol') .. vehicle.price .. locale('vehicle_menu.per_hour'),
             icon = vehicle.icon,
+            image = vehicle.image,
             onSelect = function()
                 local input = lib.inputDialog(locale('rental_time_menu.title'), {
                     {

@@ -54,6 +54,7 @@ Config.vehicles = {
             model = 'adder',
             price = 150,
             icon = 'car',
+            image = 'nui://fz-rental/web/images/adder.png',
         },
         {
             name = 'Sultan',
@@ -61,6 +62,7 @@ Config.vehicles = {
             model = 'sultan',
             price = 100,
             icon = 'car',
+            image = 'nui://fz-rental/web/images/sultan.png',
         },
         {
             name = 'Brawler',
@@ -68,6 +70,7 @@ Config.vehicles = {
             model = 'brawler',
             price = 125,
             icon = 'car',
+            image = 'nui://fz-rental/web/images/brawler.png',
         },
     },
 --[[car_rental2 = {
@@ -77,6 +80,7 @@ Config.vehicles = {
             model = 'brawler', -- Vehicle model/Spawn code.
             price = 400, -- Price to rent the vehicle.
             icon = 'car', -- Icon displayed in the ox_lib menu.
+            image = 'nui://fz-rental/web/images/adder.png', -- Image displayed in the menu make sure to check the path is correct.
         },
         {
             name = 'Sultan', -- Name of the vehicle displayed in the menu, notifications, rental papers, etc.
@@ -84,6 +88,7 @@ Config.vehicles = {
             model = 'sultan', -- Vehicle model/Spawn code.
             price = 150, -- Price to rent the vehicle.
             icon = 'car', -- Icon displayed in the ox_lib menu.
+            image = 'nui://fz-rental/web/images/sultan.png', -- Image displayed in the menu make sure to check the path is correct.
         },
     } ]]
 }
