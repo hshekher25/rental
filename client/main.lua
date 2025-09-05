@@ -31,7 +31,7 @@ local function openVehicleMenu(id)
                 })
                 if not input then return end
                 local rentalDuration = tonumber(input[1])
-                TriggerServerEvent('fz-rental:rentVehicle', id, vehicle.name, vehicle.model, vehicle.price, rentalDuration)
+                TriggerServerEvent('rental:rentVehicle', id, vehicle.name, vehicle.model, vehicle.price, rentalDuration)
             end,
         })
     end
@@ -63,7 +63,7 @@ local function openRentalMenu(id)
             description = locale('rental_menu.description_recover_vehicle'),
             icon = 'car',
             onSelect = function()
-                TriggerServerEvent('fz-rental:recoverVehicle', id)
+                TriggerServerEvent('rental:recoverVehicle', id)
             end,
           },
           {
@@ -80,7 +80,7 @@ local function openRentalMenu(id)
 end
 
 
-RegisterNetEvent('fz-rental:notify', function(message, type)
+RegisterNetEvent('rental:notify', function(message, type)
     lib.notify({
         description = message,
         type = type,
@@ -93,17 +93,20 @@ local function setFuelFull(vehicle)
         lib.print.error('Vehicle does not exist')
         return
     end
-    if config.fuelSystem == 'ox_fuel' then
+ if Config.fuelSystem == 'ox_fuel' then
         Entity(vehicle).state.fuel = 100.0
-    elseif config.fuelSystem == 'LegacyFuel' then
+    elseif Config.fuelSystem == 'LegacyFuel' then
         exports["LegacyFuel"]:SetFuel(vehicle, 100)
+    elseif Config.fuelSystem == 'cdn-fuel' then
+        -- cdn-fuel usually uses SetFuel(vehicle, value)
+        exports['cdn-fuel']:SetFuel(vehicle, 100.0)
     else
-        lib.print.error('Invalid fuel system, supports only ox_fuel or LegacyFuel')
+        lib.print.error('Invalid fuel system, supports only ox_fuel, LegacyFuel, or cdn-fuel')
         return
     end
 end
 
-RegisterNetEvent('fz-rental:spawnVehicle', function(id, name, model, rentalduration)
+RegisterNetEvent('rental:spawnVehicle', function(id, name, model, rentalduration)
     local pedId = config.peds[id]
     local playerPed = PlayerPedId()
     local coords = pedId.spawncoords
@@ -133,11 +136,11 @@ RegisterNetEvent('fz-rental:spawnVehicle', function(id, name, model, rentaldurat
         end
         Wait(50)
     end
-    TriggerServerEvent('fz-rental:giveKeys', plate)
-    TriggerServerEvent('fz-rental:giveRentalPapers', netId, name, model, plate, rentalduration)
+    TriggerServerEvent('rental:giveKeys', plate)
+    TriggerServerEvent('rental:giveRentalPapers', netId, name, model, plate, rentalduration)
 end)
 
-RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(id, name, model, plate, rentalduration)
+RegisterNetEvent('rental:spawnRecoveredVehicle', function(id, name, model, plate, rentalduration)
     local pedId = config.peds[id]
     local playerPed = PlayerPedId()
     local coords = pedId.spawncoords
@@ -166,29 +169,44 @@ RegisterNetEvent('fz-rental:spawnRecoveredVehicle', function(id, name, model, pl
         end
         Wait(50)
     end
-    TriggerServerEvent('fz-rental:giveKeys', plate)
-    TriggerEvent('fz-rental:notify', locale('success.vehicle_recovered'), 'success')
+    TriggerServerEvent('rental:giveKeys', plate)
+    TriggerEvent('rental:notify', locale('success.vehicle_recovered'), 'success')
 end)
 
+
 local function spawnPeds()
-    for id, current in pairs(config.peds) do
-        RequestModel(current.model)
+    for id, current in pairs(Config.peds) do
+        local pedModel   = current.model   or Config.defaults.pedModel
+        local scenario   = current.scenario or Config.defaults.scenario
+        local blipData   = current.blip    or Config.defaults.blip
+        local zoneOptions= current.zoneOptions or Config.defaults.zoneOptions
+
+        local modelHash = GetHashKey(pedModel)
+        if not IsModelValid(modelHash) then
+            lib.print.error('Invalid ped model: ' .. tostring(pedModel))
+            goto continue
+        end
+
+        RequestModel(modelHash)
         local timeout = GetGameTimer() + 5000
-        while not HasModelLoaded(current.model) do
+        while not HasModelLoaded(modelHash) do
             if GetGameTimer() > timeout then
-                lib.print.error('Failed to load ped model')
-                return
+                lib.print.error('Failed to load ped model: ' .. pedModel)
+                goto continue
             end
             Wait(50)
         end
-        local ped = CreatePed(0, current.model, current.coords.x, current.coords.y, current.coords.z, current.coords.w, false, false)
-        SetModelAsNoLongerNeeded(current.model)
+
+        local ped = CreatePed(0, modelHash, current.coords.x, current.coords.y, current.coords.z, current.coords.w, false, false)
+        SetModelAsNoLongerNeeded(modelHash)
         FreezeEntityPosition(ped, true)
         SetEntityInvincible(ped, true)
         SetBlockingOfNonTemporaryEvents(ped, true)
-        TaskStartScenarioInPlace(ped, current.scenario, 0, true)
+        TaskStartScenarioInPlace(ped, scenario, 0, true)
         table.insert(spawnedPeds, ped)
-        if config.useTarget then
+
+        -- ox_target or zone interaction
+        if Config.useTarget then
             exports.ox_target:addLocalEntity(ped, {{
                 name = 'open_rental' .. id,
                 icon = 'fa-solid fa-car',
@@ -199,32 +217,106 @@ local function spawnPeds()
                     openRentalMenu(id)
                 end
             }})
-        else
-            local options = current.zoneOptions
-            if options then
-                lib.zones.box({
-                    name = 'rental_zone_' .. id,
-                    coords = current.coords.xyz,
-                    size = vec3(2, 2, 3),
-                    rotation = current.coords.w,
-                    debug = options.debugPoly,
-                    onEnter = function()
-                        lib.showTextUI(locale('info.open_rental_textui'))
-                    end,
-                    onExit = function()
+        elseif zoneOptions then
+            lib.zones.box({
+                name = 'rental_zone_' .. id,
+                coords = current.coords.xyz,
+                size = vec3(zoneOptions.length, zoneOptions.width, 3),
+                rotation = current.coords.w,
+                debug = zoneOptions.debugPoly,
+                onEnter = function()
+                    lib.showTextUI(locale('info.open_rental_textui'))
+                end,
+                onExit = function()
+                    lib.hideTextUI()
+                end,
+                inside = function()
+                    if IsControlJustPressed(0, Config.keybind) then
+                        openRentalMenu(id)
                         lib.hideTextUI()
-                    end,
-                    inside = function()
-                        if IsControlJustPressed(0, config.keybind) then
-                            openRentalMenu(id)
-                            lib.hideTextUI()
-                        end
-                    end,
-                })
-            end
+                    end
+                end,
+            })
+        end
+
+        ::continue::
+    end
+end
+
+local function spawnBlips()
+    if Config.useBlips then
+        for _, pedData in pairs(Config.peds) do
+            local blipData = pedData.blip or Config.defaults.blip
+            local blip = AddBlipForCoord(pedData.coords.x, pedData.coords.y, pedData.coords.z)
+            SetBlipSprite(blip, blipData.sprite)
+            SetBlipDisplay(blip, blipData.display or 4)
+            SetBlipScale(blip, blipData.scale)
+            SetBlipColour(blip, blipData.colour)
+            SetBlipAsShortRange(blip, true)
+            BeginTextCommandSetBlipName('STRING')
+            AddTextComponentString(blipData.label)
+            EndTextCommandSetBlipName(blip)
+            table.insert(spawnedBlips, blip)
         end
     end
 end
+
+
+-- local function spawnPeds()
+--     for id, current in pairs(config.peds) do
+--         RequestModel(current.model)
+--         local timeout = GetGameTimer() + 5000
+--         while not HasModelLoaded(current.model) do
+--             if GetGameTimer() > timeout then
+--                 lib.print.error('Failed to load ped model')
+--                 return
+--             end
+--             Wait(50)
+--         end
+--         local ped = CreatePed(0, current.model, current.coords.x, current.coords.y, current.coords.z, current.coords.w, false, false)
+--         SetModelAsNoLongerNeeded(current.model)
+--         FreezeEntityPosition(ped, true)
+--         SetEntityInvincible(ped, true)
+--         SetBlockingOfNonTemporaryEvents(ped, true)
+--         TaskStartScenarioInPlace(ped, current.scenario, 0, true)
+--         table.insert(spawnedPeds, ped)
+--         if config.useTarget then
+--             exports.ox_target:addLocalEntity(ped, {{
+--                 name = 'open_rental' .. id,
+--                 icon = 'fa-solid fa-car',
+--                 label = locale('info.open_rental_target'),
+--                 distance = 1.5,
+--                 debug = false,
+--                 onSelect = function()
+--                     openRentalMenu(id)
+--                 end
+--             }})
+--         else
+--             local options = current.zoneOptions
+--             if options then
+--                 lib.zones.box({
+--                     name = 'rental_zone_' .. id,
+--                     coords = current.coords.xyz,
+--                     size = vec3(2, 2, 3),
+--                     rotation = current.coords.w,
+--                     debug = options.debugPoly,
+--                     onEnter = function()
+--                         lib.showTextUI(locale('info.open_rental_textui'))
+--                     end,
+--                     onExit = function()
+--                         lib.hideTextUI()
+--                     end,
+--                     inside = function()
+--                         if IsControlJustPressed(0, config.keybind) then
+--                             openRentalMenu(id)
+--                             lib.hideTextUI()
+--                         end
+--                     end,
+--                 })
+--             end
+--         end
+--     end
+-- end
 
 local function deletePeds()
     for _, ped in ipairs(spawnedPeds) do
@@ -234,22 +326,22 @@ local function deletePeds()
     end
 end
 
-local function spawnBlips()
-    if config.useBlips then
-        for _, pedData in pairs(config.peds) do
-            local blip = AddBlipForCoord(pedData.coords.x, pedData.coords.y, pedData.coords.z)
-            SetBlipSprite(blip, pedData.blip and pedData.blip.sprite or 1)
-            SetBlipDisplay(blip, pedData.blip and pedData.blip.display or 4)
-            SetBlipScale(blip, pedData.blip and pedData.blip.scale or 1.0)
-            SetBlipColour(blip, pedData.blip and pedData.blip.colour or 1)
-            SetBlipAsShortRange(blip, true)
-            BeginTextCommandSetBlipName('STRING')
-            AddTextComponentString(pedData.blip.label)
-            EndTextCommandSetBlipName(blip)
-            table.insert(spawnedBlips, blip)
-        end
-    end
-end
+-- local function spawnBlips()
+--     if config.useBlips then
+--         for _, pedData in pairs(config.peds) do
+--             local blip = AddBlipForCoord(pedData.coords.x, pedData.coords.y, pedData.coords.z)
+--             SetBlipSprite(blip, pedData.blip and pedData.blip.sprite or 1)
+--             SetBlipDisplay(blip, pedData.blip and pedData.blip.display or 4)
+--             SetBlipScale(blip, pedData.blip and pedData.blip.scale or 1.0)
+--             SetBlipColour(blip, pedData.blip and pedData.blip.colour or 1)
+--             SetBlipAsShortRange(blip, true)
+--             BeginTextCommandSetBlipName('STRING')
+--             AddTextComponentString(pedData.blip.label)
+--             EndTextCommandSetBlipName(blip)
+--             table.insert(spawnedBlips, blip)
+--         end
+--     end
+-- end
 
 local function deleteBlips()
     for _, blip in ipairs(spawnedBlips) do
@@ -258,6 +350,7 @@ local function deleteBlips()
         end
     end
 end
+
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     spawnPeds()

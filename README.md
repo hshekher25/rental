@@ -1,9 +1,9 @@
-# fz-rental
+# rental
 
 [![Discord](https://img.shields.io/badge/Discord-%237289DA.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/yk5ean6rte)
 [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/@official-fzstudio)
 
-fz-rental is a FiveM resource that allows players to rent vehicles in a smooth and sleek way.
+rental is a FiveM resource that allows players to rent vehicles in a smooth and sleek way.
 
 ## Features
 - Easy installation.
@@ -28,7 +28,7 @@ fz-rental is a FiveM resource that allows players to rent vehicles in a smooth a
 
 ## Installation
 1. Download the resource and place it in your `resources` directory.
-2. Add `ensure fz-rental` to your `server.cfg` file.
+2. Add `ensure rental` to your `server.cfg` file.
 3. Add the item into ox_inventory/data/items.lua
 
 ```lua
@@ -38,8 +38,8 @@ fz-rental is a FiveM resource that allows players to rent vehicles in a smooth a
     },
 ```
 
-4. Drag or copy the image in fz-rental/web/images/rental_papers.png to ox_inventory/web/images/
+4. Drag or copy the image in rental/web/images/rental_papers.png to ox_inventory/web/images/
 5. Done!
 
 ## Support
-For any issues or suggestions join: [Discord](#fz-rental)
+For any issues or suggestions join: [Discord](#rental)

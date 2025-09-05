@@ -1,94 +1,65 @@
 Config = {}
-Config.useBlips = true -- Show blips on the map.
-Config.useTarget = true -- Use ox_target for interaction.
-Config.fuelSystem = 'ox_fuel' -- Fuel system to use. Options: 'ox_fuel' or 'LegacyFuel' make sure to start the resource before this one.
-Config.keybind = 38 -- Control index for the TextUI. Default is 'E' (38) Change locals file for UI text. https://docs.fivem.net/docs/game-references/controls/#controls
 
-Config.minRentTime = 1 -- Minimum rental time in hours.
-Config.maxRentTime = 24 -- Maximum rental time in hours.
+Config.useBlips = true
+Config.useTarget = true
+Config.fuelSystem = 'cdn-fuel' -- 'ox_fuel' or 'LegacyFuel'
+Config.keybind = 38 -- Default 'E'
 
-Config.moneytype = 'bank' -- Type of money used for transactions. Options: 'cash' or 'bank'.
+Config.minRentTime = 1
+Config.maxRentTime = 24
+Config.moneytype = 'bank'
 
-Config.peds = {
-    car_rental1 = {    -- Unique identifier.
-        model = 'a_m_m_hasjew_01',  -- Model for the ped.
-        coords = vec4(-1039.04, -2678.52, 12.83, 16.87),    -- Coordinates for the rental service ped.
-        scenario = 'WORLD_HUMAN_CLIPBOARD', -- Animation scenario for the ped.
-        spawncoords = vec4(-1044.4, -2674.19, 13.83, 318.26), -- Coords for spawning vehicles.
-        blip = {
-            sprite = 225, -- Icon for the blip. https://docs.fivem.net/docs/game-references/blips/
-            scale = 1.0, -- Size of the blip.
-            colour = 2, -- Color of the blip. https://docs.fivem.net/docs/game-references/blips/#blip-colors
-            label = 'Rental Service',
-        },
-        zoneOptions = { -- Used when UseTarget is false.
-            length = 3.0,
-            width = 3.0,
-            debugPoly = false,  -- Only used for debugging.
-        },
-    },
---[[car_rental2 = {    -- Unique identifier.
-        model = 'a_m_m_hasjew_01',  -- Model for the ped.
-        coords = vec4(-1029.1, -2661.23, 13.83, 127.25),    -- Coordinates for the rental service ped.
-        scenario = 'WORLD_HUMAN_CLIPBOARD', -- Animation scenario for the ped.
-        spawncoords = vec4(-1034.84, -2657.33, 13.83, 151.96), -- Coords for spawning vehicles.
-        blip = {
-            sprite = 225, -- Icon for the blip. https://docs.fivem.net/docs/game-references/blips/
-            scale = 1.0, -- Size of the blip.
-            colour = 2, -- Color of the blip. https://docs.fivem.net/docs/game-references/blips/#blip-colors
-            label = 'Rental Service',
-        },
-        zoneOptions = { -- Used when UseTarget is false.
-            length = 3.0,
-            width = 3.0,
-            debugPoly = false,  -- Only used for debugging.
-        },
-    }, ]]
+-- Default ped/blip settings
+Config.defaults = {
+    pedModel   = 'a_m_m_hasjew_01',
+    scenario   = 'WORLD_HUMAN_CLIPBOARD',
+    blip       = { sprite = 225, scale = 1.0, colour = 2, label = 'Rental Service' },
+    zoneOptions = { length = 3.0, width = 3.0, debugPoly = false },
 }
 
-Config.vehicles = {
-    car_rental1 = {
-        {
-            name = 'Adder',
-            description = 'A fast sports car.',
-            model = 'adder',
-            price = 150,
-            icon = 'car',
-            image = 'nui://fz-rental/web/images/adder.png',
-        },
-        {
-            name = 'Sultan',
-            description = 'A 4-door sedan.',
-            model = 'sultan',
-            price = 100,
-            icon = 'car',
-            image = 'nui://fz-rental/web/images/sultan.png',
-        },
-        {
-            name = 'Brawler',
-            description = 'A off-road vehicle.',
-            model = 'brawler',
-            price = 125,
-            icon = 'car',
-            image = 'nui://fz-rental/web/images/brawler.png',
-        },
+-- Rental locations (only unique coords/spawncoords matter)
+Config.peds = {
+    car_rental1 = { coords = vec4(-1031.13, -2735.50, 19.23, 64.95), spawncoords = vec4(-1031.30, -2731.70, 19.94, 239.97) },
+    car_rental2 = { coords = vec4(156.77, -3006.02, 6.03, 270.07),   spawncoords = vec4(163.12, -3006.13, 5.80, 269.84) },
+    car_rental3 = { coords = vec4(1238.38, -3105.04, 5.02, 272.18), spawncoords = vec4(1240.69, -3100.49, 5.74, 270.18) },
+    car_rental4 = { coords = vec4(1080.54, -1972.13, 30.01, 328.06), spawncoords = vec4(1080.41, -1964.24, 30.88, 54.93) },
+    car_rental5 = { coords = vec4(101.89, -1072.19, 28.21, 337.23),  spawncoords = vec4(104.62, -1077.73, 29.06, 340.23) },
+    car_rental6 = { coords = vec4(-1618.02, -1013.48, 12.14, 317.74), spawncoords = vec4(-1270.67, -251.01, 42.31, 35.87) },
+    car_rental7 = { coords = vec4(-1266.18, -251.86, 41.44, 36.52),   spawncoords = vec4(-1220.21, -194.63, 39.04, 151.87) },
+    car_rental8 = { coords = vec4(882.29, 7.81, 77.90, 237.68),       spawncoords = vec4(877.97, 5.06, 78.63, 147.49) },
+    car_rental9 = { coords = vec4(242.46, 197.22, 104.21, 168.21),   spawncoords = vec4(249.53, 191.91, 104.80, 69.27) },
+    car_rental10 = { coords = vec4(-1324.02, -678.75, 25.51, 42.66), spawncoords = vec4(-1330.41, -676.15, 26.20, 304.67) },
+}
+
+-- Vehicle catalog (shared by all unless overridden)
+Config.defaultVehicles = {
+    {
+        name = 'Adder', description = 'A fast sports car.',
+        model = 'adder', price = 150, icon = 'car',
+        image = 'nui://rental/web/images/adder.png',
     },
---[[car_rental2 = {
-        {
-            name = 'Adder', -- Name of the vehicle displayed in the menu, notifications, rental papers, etc.
-            description = 'A fast sports car.', -- Description of the vehicle displayed in the menu.
-            model = 'brawler', -- Vehicle model/Spawn code.
-            price = 400, -- Price to rent the vehicle.
-            icon = 'car', -- Icon displayed in the ox_lib menu.
-            image = 'nui://fz-rental/web/images/adder.png', -- Image displayed in the menu make sure to check the path is correct.
-        },
-        {
-            name = 'Sultan', -- Name of the vehicle displayed in the menu, notifications, rental papers, etc.
-            description = 'A 4-door sedan.', -- Description of the vehicle displayed in the menu.
-            model = 'sultan', -- Vehicle model/Spawn code.
-            price = 150, -- Price to rent the vehicle.
-            icon = 'car', -- Icon displayed in the ox_lib menu.
-            image = 'nui://fz-rental/web/images/sultan.png', -- Image displayed in the menu make sure to check the path is correct.
-        },
-    } ]]
+    {
+        name = 'Sultan', description = 'A 4-door sedan.',
+        model = 'sultan', price = 100, icon = 'car',
+        image = 'nui://rental/web/images/sultan.png',
+    },
+    {
+        name = 'Brawler', description = 'An off-road vehicle.',
+        model = 'brawler', price = 125, icon = 'car',
+        image = 'nui://rental/web/images/brawler.png',
+    },
+}
+
+-- Vehicle overrides (if some locations have unique lists)
+Config.vehicles = {
+    car_rental1 = Config.defaultVehicles,
+    car_rental2 = Config.defaultVehicles,
+    car_rental3 = Config.defaultVehicles,
+    car_rental4 = Config.defaultVehicles,
+    car_rental5 = Config.defaultVehicles,
+    car_rental6 = Config.defaultVehicles,
+    car_rental7 = Config.defaultVehicles,
+    car_rental8 = Config.defaultVehicles,
+    car_rental9 = Config.defaultVehicles,
+    car_rental10 = Config.defaultVehicles,
 }
